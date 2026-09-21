@@ -4,4 +4,4 @@ project(SudokuSolver LANGUAGES CXX)
 
 add_executable(SudokuSolver main.cpp)
 
-target_compile_features(SudokuSolver PRIVATE cxx_std_17)
+target_compile_features(SudokuSolver PRIVATE cxx_std_20)
