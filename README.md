@@ -12,3 +12,7 @@ cmake --build build
 ```
 
 The executable prints `Hello, World!` as the initial project setup.
+
+### Sample Sudoku puzzle
+
+The data folder contains 16 sample sudoku puzzles and their associated solutions. These puzzles were sourced from https://people.sc.fsu.edu/~jburkardt/data/sudoku/sudoku.html.  
