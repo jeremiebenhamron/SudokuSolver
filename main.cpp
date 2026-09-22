@@ -1,8 +1,15 @@
 #include <fstream>
 #include <iostream>
+
+#include <array>
+#include <optional>
+#include <string>
 #include <unordered_set>
 
-std::string getSudokuPuzzle(const std::string& fileName) {
+constexpr int SUDOKU_CELL_COUNT = 81;
+using SudokuPuzzle = std::array<int, SUDOKU_CELL_COUNT>;
+
+std::string getSudokuString(const std::string& fileName) {
     std::fstream file(fileName);
 
     if(!file.is_open()) { 
@@ -20,22 +27,38 @@ bool isValidCell(const int& value) noexcept {
     return  (0 <= value) && (value <= 9);
 }
 
-bool isValidSudoku(const std::string& sudokuString) {
-    if(sudokuString.length() != 81)
+std::optional<SudokuPuzzle> validSudoku(const std::string& sudokuString) {
+    if(sudokuString.length() != SUDOKU_CELL_COUNT)
     {
-        std::cerr << "Sudoku must have 81 cells, but has: " << sudokuString.length() << " cells" << std::endl;
-        return false;
+        std::cerr << "Sudoku must have " << SUDOKU_CELL_COUNT << " cells, but has: " << sudokuString.length() << " cells" << std::endl;
+        return std::nullopt;
     }
 
-    std::array<int,81> sudokuArray;
+    SudokuPuzzle sudokuArray{};
+    auto outputCell = sudokuArray.begin();
     for (const auto& cellChar: sudokuString) {
         const int cellValue = cellChar - '0';
         if (!isValidCell(cellValue)) {
             std::cerr << "Found invalid cell value: " << cellChar << std::endl;
-            return false;
+            return std::nullopt;
+        }
+        *outputCell++ = cellValue;
+    }
+    return sudokuArray;
+}
+
+void printSudoku(const SudokuPuzzle& sudoku) {
+    for (int i = 0; i < SUDOKU_CELL_COUNT; ++i) {
+        if (sudoku[i] == 0) {
+            std::cout << ". ";
+        } else {
+            std::cout << sudoku[i] << ' ';
+        }
+
+        if ((i + 1) % 9 == 0) {
+            std::cout << std::endl;
         }
     }
-    return true;
 }
 
 int main(int argc, char* argv[]) {
@@ -46,12 +69,13 @@ int main(int argc, char* argv[]) {
 
     std::string sudokuFileName(argv[1]);
     try {
-        std::string sudokuPuzzle = getSudokuPuzzle(sudokuFileName);
-        if (!isValidSudoku(sudokuPuzzle)) {
+        std::string sudokuString = getSudokuString(sudokuFileName);
+        if (auto sudokuPuzzle = validSudoku(sudokuString)) {
+            std::cout << "Valid Sudoku puzzle." << std::endl;
+            printSudoku(*sudokuPuzzle);
+        } else {
             std::cerr << "Invalid Sudoku puzzle." << std::endl;
             return 1;
-        } else {
-            std::cout << "Valid Sudoku puzzle." << std::endl;
         }
     }
     catch(const std::exception& e) {
@@ -62,6 +86,3 @@ int main(int argc, char* argv[]) {
     
     return 0;
 }
-
-
-
