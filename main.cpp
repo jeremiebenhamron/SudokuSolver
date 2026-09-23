@@ -7,6 +7,7 @@
 #include <unordered_set>
 
 #include "SudokuBoard.hpp"
+#include "SudokuSolver.hpp"
 
 std::string getSudokuString(const std::string& fileName) {
     std::fstream file(fileName);
@@ -58,6 +59,17 @@ int main(int argc, char* argv[]) {
         if (auto sudokuBoard = validSudoku(sudokuString)) {
             std::cout << "Valid Sudoku puzzle." << std::endl;
             sudokuBoard->print();
+            SudokuSolver solver(std::move(*sudokuBoard));
+            
+            if (auto solution = solver.solve())
+            {   
+                std::cout << std::endl;
+                std::cout << "Solved Sudoku puzzle. Solution:" << std::endl;
+                solution->print();
+            } else {
+                std::cout << std::endl;
+                std::cout << "Sudoku has no unique solution." << std::endl;
+            }
         } else {
             std::cerr << "Invalid Sudoku puzzle." << std::endl;
             return 1;

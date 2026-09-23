@@ -1,3 +1,5 @@
+#pragma once
+
 #include <array>
 
 constexpr int SUDOKU_CELL_COUNT = 81;

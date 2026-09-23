@@ -6,8 +6,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_executable(SudokuSolver 
     main.cpp 
-    SudokuBoard.hpp 
     SudokuBoard.cpp
+    SudokuBoard.hpp 
+    SudokuSolver.cpp
+    SudokuSolver.hpp
 )
 
 target_compile_features(SudokuSolver PRIVATE cxx_std_20)
