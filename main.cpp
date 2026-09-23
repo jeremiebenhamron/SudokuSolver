@@ -6,8 +6,7 @@
 #include <string>
 #include <unordered_set>
 
-constexpr int SUDOKU_CELL_COUNT = 81;
-using SudokuPuzzle = std::array<int, SUDOKU_CELL_COUNT>;
+#include "SudokuBoard.hpp"
 
 std::string getSudokuString(const std::string& fileName) {
     std::fstream file(fileName);
@@ -27,7 +26,7 @@ bool isValidCell(const int& value) noexcept {
     return  (0 <= value) && (value <= 9);
 }
 
-std::optional<SudokuPuzzle> validSudoku(const std::string& sudokuString) {
+std::optional<SudokuBoard> validSudoku(const std::string& sudokuString) {
     if(sudokuString.length() != SUDOKU_CELL_COUNT)
     {
         std::cerr << "Sudoku must have " << SUDOKU_CELL_COUNT << " cells, but has: " << sudokuString.length() << " cells" << std::endl;
@@ -44,21 +43,7 @@ std::optional<SudokuPuzzle> validSudoku(const std::string& sudokuString) {
         }
         *outputCell++ = cellValue;
     }
-    return sudokuArray;
-}
-
-void printSudoku(const SudokuPuzzle& sudoku) {
-    for (int i = 0; i < SUDOKU_CELL_COUNT; ++i) {
-        if (sudoku[i] == 0) {
-            std::cout << ". ";
-        } else {
-            std::cout << sudoku[i] << ' ';
-        }
-
-        if ((i + 1) % 9 == 0) {
-            std::cout << std::endl;
-        }
-    }
+    return SudokuBoard(std::move(sudokuArray));
 }
 
 int main(int argc, char* argv[]) {
@@ -70,9 +55,9 @@ int main(int argc, char* argv[]) {
     std::string sudokuFileName(argv[1]);
     try {
         std::string sudokuString = getSudokuString(sudokuFileName);
-        if (auto sudokuPuzzle = validSudoku(sudokuString)) {
+        if (auto sudokuBoard = validSudoku(sudokuString)) {
             std::cout << "Valid Sudoku puzzle." << std::endl;
-            printSudoku(*sudokuPuzzle);
+            sudokuBoard->print();
         } else {
             std::cerr << "Invalid Sudoku puzzle." << std::endl;
             return 1;
