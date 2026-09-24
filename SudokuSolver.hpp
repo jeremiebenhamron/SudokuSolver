@@ -95,8 +95,8 @@ private:
     /// Updates the candidate matrices to reflect the current candidates.
     void populateCellByCandidateMatrices();
 
-    /// Writes a value to a cell on the board.
-    void updateCell(const SudokuCell& cell, const int& value);
+    /// Removes a failed guessed value from the cell and candidate indexes.
+    void invalidateGuess(const SudokuCell& cell, int value);
 
     /// Recomputes candidates affected by a newly assigned cell value.
     void updateCandidatesAfterChangeAt(const SudokuCell& cellChanged, const int& value);

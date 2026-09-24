@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iostream>
 #include <iterator>
 #include <set>
 
@@ -9,9 +10,34 @@ std::optional<SudokuBoard> SudokuSolver::solve() {
     populateCellByCandidateMatrices();
     while (board.hasEmptyCells() && allEmptyCellsHaveCandidates())
     {
-        for (const auto& [index, value]: getCellsWithUniqueCandidate()) {
-            board.updateCell(index, value);
-            updateCandidatesAfterChangeAt(index, value);
+        const auto& cellsWithUniqueCandidates = getCellsWithUniqueCandidate();
+        if (cellsWithUniqueCandidates.empty())
+        {
+            // There are no cells with unique candidates, so we cannot make any further progress
+            // without making a guess.
+            const auto firstEmptyCell = board.emptyCells().front();
+            const int guessedValue = *candidates[firstEmptyCell.arrayIndex].begin();
+
+            std::cout << "Guessing value " << guessedValue << " for cell at row: " << firstEmptyCell.row() + 1 << ", column: " << firstEmptyCell.column() + 1 << std::endl;
+
+            // Create a copy of the solver to try and solve the puzzle with the guessed value
+            SudokuSolver solver = *this;
+            solver.board.updateCell(firstEmptyCell, guessedValue);
+            if (const auto solution = solver.solve())
+            {
+                // the guess led to a valid solution
+                return solution;
+            } else {
+                // the guess is invalid, so update candidates accordingly
+                invalidateGuess(firstEmptyCell, guessedValue);
+                std::cout << "Invalidating guess: " << guessedValue << " for cell at row: " << firstEmptyCell.row() + 1 << ", column: " << firstEmptyCell.column() + 1 << std::endl;
+            }
+
+        } else {
+            for (const auto& [index, value]: cellsWithUniqueCandidates) {
+                board.updateCell(index, value);
+                updateCandidatesAfterChangeAt(index, value);
+            }
         }
     }
 
@@ -30,6 +56,28 @@ std::optional<SudokuBoard> SudokuSolver::solve() {
         populateCandidates(index);
     }
  }
+
+void SudokuSolver::invalidateGuess(const SudokuCell& cell, const int value) {
+    candidates[cell.arrayIndex].erase(value);
+
+    auto& rowCandidateCells = candidateCellsByRow[cell.row()][value - 1];
+    rowCandidateCells.erase(
+        std::remove(rowCandidateCells.begin(), rowCandidateCells.end(), cell),
+        rowCandidateCells.end()
+    );
+
+    auto& colCandidateCells = candidateCellsByColumn[cell.column()][value - 1];
+    colCandidateCells.erase(
+        std::remove(colCandidateCells.begin(), colCandidateCells.end(), cell),
+        colCandidateCells.end()
+    );
+
+    auto& blockCandidateCells = candidateCellsByBlock[cell.block()][value - 1];
+    blockCandidateCells.erase(
+        std::remove(blockCandidateCells.begin(), blockCandidateCells.end(), cell),
+        blockCandidateCells.end()
+    );
+}
 
  void SudokuSolver::populateCandidates(const SudokuCell& cell) {
     std::set<int> allValues{1, 2, 3, 4, 5, 6, 7, 8, 9};
