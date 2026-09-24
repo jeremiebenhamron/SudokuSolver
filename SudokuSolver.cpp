@@ -3,8 +3,6 @@
 
 #include "SudokuSolver.hpp"
 
-using CellUniqueCandidatePair = std::pair<SudokuCell, int>;
-
 std::optional<SudokuBoard> SudokuSolver::solve() {
     populateCandidates();
     while (board.hasEmptyCells())
@@ -48,6 +46,17 @@ std::optional<SudokuBoard> SudokuSolver::solve() {
     this->candidates[cell.arrayIndex] = std::move(candidates);
  }
 
+ void SudokuSolver::populateCellByCandidateMatrices() {
+    for (const auto& emptyCell: board.emptyCells()) {
+        const auto& cellCandidates = candidates[emptyCell.arrayIndex];
+        for (const auto& value: cellCandidates) {
+            candidateCellsByRow[emptyCell.row()][value - 1].push_back(emptyCell);
+            candidateCellsByColumn[emptyCell.column()][value - 1].push_back(emptyCell);
+            candidateCellsByBlock[emptyCell.block()][value - 1].push_back(emptyCell);
+        }
+    }
+ }
+
 std::vector<CellUniqueCandidatePair> SudokuSolver::getCellsWithUniqueCandidate() const {
     std::vector<CellUniqueCandidatePair> cellsWithUniqueCandidates{};
     for (const auto& emptyCell: board.emptyCells())
@@ -58,8 +67,36 @@ std::vector<CellUniqueCandidatePair> SudokuSolver::getCellsWithUniqueCandidate()
             cellsWithUniqueCandidates.emplace_back(emptyCell, *cellCandidates.begin());
         }
     }
+
+    const auto& uniqueCandidatesInRows = getCellsWithUniqueCandidate(candidateCellsByRow);
+    const auto& uniqueCandidatesInColumns = getCellsWithUniqueCandidate(candidateCellsByColumn);
+    const auto& uniqueCandidatesInBlocks = getCellsWithUniqueCandidate(candidateCellsByBlock);
+
+    cellsWithUniqueCandidates.insert(cellsWithUniqueCandidates.end(), uniqueCandidatesInRows.begin(), uniqueCandidatesInRows.end());
+    cellsWithUniqueCandidates.insert(cellsWithUniqueCandidates.end(), uniqueCandidatesInColumns.begin(), uniqueCandidatesInColumns.end());
+    cellsWithUniqueCandidates.insert(cellsWithUniqueCandidates.end(), uniqueCandidatesInBlocks.begin(), uniqueCandidatesInBlocks.end());
+
     return cellsWithUniqueCandidates;
 }
+
+std::vector<CellUniqueCandidatePair>
+SudokuSolver::getCellsWithUniqueCandidate(
+    const CellsByCandidateMatrix& cellsByValueMatrix) const {
+    std::vector<CellUniqueCandidatePair> cellsWithUniqueCandidates{};
+    for (const auto& candidateCellsByValue : cellsByValueMatrix)
+    {
+        for (int valueIndex = 0; valueIndex < 9; ++valueIndex)
+        {
+            const auto& cellsWithCandidate = candidateCellsByValue[valueIndex];
+            if (cellsWithCandidate.size() == 1)
+            {
+                cellsWithUniqueCandidates.emplace_back(cellsWithCandidate.front(), valueIndex + 1);
+            }
+        }
+    }
+    return cellsWithUniqueCandidates;
+}
+
 
 std::set<SudokuCell> SudokuSolver::getCellsAffectedByChangeAt(const SudokuCell& cellChanged) const
 {
@@ -83,4 +120,13 @@ void SudokuSolver::updateCandidatesAfterChangeAt(const SudokuCell& cellChanged, 
     {
         candidates[cellWithAffectedCandidates.arrayIndex].erase(value);
     }
+
+    updateCellByCandidateMatricesAfterChangeAt(cellChanged, value);
+}
+
+void SudokuSolver::updateCellByCandidateMatricesAfterChangeAt(const SudokuCell& cellChanged, const int& value)
+{
+    candidateCellsByRow[cellChanged.row()][value - 1].clear();
+    candidateCellsByColumn[cellChanged.column()][value - 1].clear();
+    candidateCellsByBlock[cellChanged.block()][value - 1].clear();
 }
