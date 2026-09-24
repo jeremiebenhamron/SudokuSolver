@@ -48,7 +48,7 @@ std::optional<SudokuBoard> SudokuSolver::solve() {
     this->candidates[cell.arrayIndex] = std::move(candidates);
  }
 
-std::vector<CellUniqueCandidatePair> SudokuSolver::getCellsWithUniqueCandidate() {
+std::vector<CellUniqueCandidatePair> SudokuSolver::getCellsWithUniqueCandidate() const {
     std::vector<CellUniqueCandidatePair> cellsWithUniqueCandidates{};
     for (const auto& emptyCell: board.emptyCells())
     {
@@ -61,7 +61,7 @@ std::vector<CellUniqueCandidatePair> SudokuSolver::getCellsWithUniqueCandidate()
     return cellsWithUniqueCandidates;
 }
 
-std::set<SudokuCell> SudokuSolver::getCellsAffectedByChangeAt(const SudokuCell& cellChanged)
+std::set<SudokuCell> SudokuSolver::getCellsAffectedByChangeAt(const SudokuCell& cellChanged) const
 {
     std::set<SudokuCell> cellsWithCandidatesAffected{};
     const auto& emptyCellsInSameRow = board.emptyCellsInRow(cellChanged.row());

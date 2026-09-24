@@ -64,38 +64,38 @@ public:
     /// A board must be constructed from puzzle data.
     SudokuBoard() = delete;
 
-    /// Prints the board, displaying empty cells as dots.
-    void print();
-
     /// Assigns a value to the specified cell.
     void updateCell(const SudokuCell& cell, const int& value);
-
+    
+    /// Prints the board, displaying empty cells as dots.
+    void print() const;
+    
     /// Returns whether the specified cell is empty.
-    bool isEmpty(const SudokuCell& cell);
+    bool isEmpty(const SudokuCell& cell) const;
 
     /// Returns whether the board contains at least one empty cell.
-    bool hasEmptyCells();
+    bool hasEmptyCells() const;
 
     /// Returns all empty cells on the board.
-    std::vector<SudokuCell> emptyCells();
+    std::vector<SudokuCell> emptyCells() const;
 
     /// Returns empty cells in the specified row.
-    std::vector<SudokuCell> emptyCellsInRow(const int& row);
+    std::vector<SudokuCell> emptyCellsInRow(const int& row) const;
 
     /// Returns empty cells in the specified column.
-    std::vector<SudokuCell> emptyCellsInCol(const int& row);
+    std::vector<SudokuCell> emptyCellsInCol(const int& row) const;
 
     /// Returns empty cells in the specified 3x3 block.
-    std::vector<SudokuCell> emptyCellsInBlock(const int& block);
+    std::vector<SudokuCell> emptyCellsInBlock(const int& block) const;
 
     /// Returns the values in the specified row.
-    std::set<int> rowValues(const SudokuCell& cell);
+    std::set<int> rowValues(const SudokuCell& cell) const;
 
     /// Returns the values in the specified column.
-    std::set<int> columnValues(const SudokuCell& cell);
+    std::set<int> columnValues(const SudokuCell& cell) const;
 
     /// Returns the values in the specified 3x3 block.
-    std::set<int> blockValues(const SudokuCell& cell);
+    std::set<int> blockValues(const SudokuCell& cell) const;
 
 
 private:

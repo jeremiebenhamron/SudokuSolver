@@ -2,7 +2,7 @@
 
 #include "SudokuBoard.hpp"
 
-void SudokuBoard::print() {
+void SudokuBoard::print() const {
     for (int i = 0; i < SUDOKU_CELL_COUNT; ++i) {
         if (board[i] == 0) {
             std::cout << ". ";
@@ -16,16 +16,16 @@ void SudokuBoard::print() {
     }
 }
 
-bool SudokuBoard::hasEmptyCells() {
+bool SudokuBoard::hasEmptyCells() const {
     return emptyCells().size() > 0;
 }
 
-bool SudokuBoard::isEmpty(const SudokuCell& cell)
+bool SudokuBoard::isEmpty(const SudokuCell& cell) const
 {
     return 0 == board[cell.arrayIndex];
 }
 
-std::vector<SudokuCell> SudokuBoard::emptyCellsInRow(const int& row) {
+std::vector<SudokuCell> SudokuBoard::emptyCellsInRow(const int& row) const {
     std::vector<SudokuCell> cells{};
     for (int col = 0;  col < 9; ++col)
     {
@@ -38,7 +38,7 @@ std::vector<SudokuCell> SudokuBoard::emptyCellsInRow(const int& row) {
     return cells;
 }
 
-std::vector<SudokuCell> SudokuBoard::emptyCellsInCol(const int& col) {
+std::vector<SudokuCell> SudokuBoard::emptyCellsInCol(const int& col) const {
     std::vector<SudokuCell> cells{};
     for (int row = 0; row < 9; ++row)
     {
@@ -51,7 +51,7 @@ std::vector<SudokuCell> SudokuBoard::emptyCellsInCol(const int& col) {
     return cells;
 }
 
-std::vector<SudokuCell> SudokuBoard::emptyCellsInBlock(const int& block) {
+std::vector<SudokuCell> SudokuBoard::emptyCellsInBlock(const int& block) const {
     std::vector<SudokuCell> cells{};
     int startRow = (block / 3) * 3;
     int startColumn = (block % 3) * 3;
@@ -69,7 +69,7 @@ std::vector<SudokuCell> SudokuBoard::emptyCellsInBlock(const int& block) {
     return cells;
 }
 
-std::vector<SudokuCell> SudokuBoard::emptyCells() {
+std::vector<SudokuCell> SudokuBoard::emptyCells() const {
     std::vector<SudokuCell> emptyCells{};
     for (int i = 0; i < static_cast<int>(board.size()); i++)
     {
@@ -81,7 +81,7 @@ std::vector<SudokuCell> SudokuBoard::emptyCells() {
     return emptyCells;
 }
 
-std::set<int> SudokuBoard::rowValues(const SudokuCell& cell) {
+std::set<int> SudokuBoard::rowValues(const SudokuCell& cell) const {
     std::set<int> values{};
 
     for (int col = 0; col < 9; ++col) {
@@ -94,7 +94,7 @@ std::set<int> SudokuBoard::rowValues(const SudokuCell& cell) {
     return values;
 }
 
-std::set<int> SudokuBoard::columnValues(const SudokuCell& cell) {
+std::set<int> SudokuBoard::columnValues(const SudokuCell& cell) const {
     std::set<int> values{};
 
     for (int row = 0; row < 9; ++row) {
@@ -106,7 +106,7 @@ std::set<int> SudokuBoard::columnValues(const SudokuCell& cell) {
     return values;
 }
 
-std::set<int> SudokuBoard::blockValues(const SudokuCell& cell) {
+std::set<int> SudokuBoard::blockValues(const SudokuCell& cell) const {
     std::set<int> values;
     int startRow = (cell.block() / 3) * 3;
     int startColumn = (cell.block() % 3) * 3;

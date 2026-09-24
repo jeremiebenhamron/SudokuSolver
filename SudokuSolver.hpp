@@ -43,20 +43,21 @@ private:
     /// Candidate values currently possible for each cell.
     CandidatesByCell candidates;
     
+    /// Finds cells whose candidate set contains exactly one value.
+    std::vector<std::pair<SudokuCell,int>> getCellsWithUniqueCandidate() const;
+    
+    /// Finds empty cells sharing a row, column, or block with a changed cell.
+    std::set<SudokuCell> getCellsAffectedByChangeAt(const SudokuCell& cellChanged) const;
+    
     /// Initializes candidates for every cell on the board.
     void populateCandidates();
 
     /// Initializes candidates for one cell.
     void populateCandidates(const SudokuCell& cell);
 
-    /// Finds cells whose candidate set contains exactly one value.
-    std::vector<std::pair<SudokuCell,int>> getCellsWithUniqueCandidate();
-
     /// Writes a value to a cell on the board.
     void updateCell(const SudokuCell& cell, const int& value);
 
-    /// Finds empty cells sharing a row, column, or block with a changed cell.
-    std::set<SudokuCell> getCellsAffectedByChangeAt(const SudokuCell& cellChanged);
 
     /// Recomputes candidates affected by a newly assigned cell value.
     void updateCandidatesAfterChangeAt(const SudokuCell& cellChanged, const int& value);
