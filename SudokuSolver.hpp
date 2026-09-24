@@ -73,6 +73,8 @@ private:
      */
     CellsByCandidateMatrix candidateCellsByBlock;
 
+    bool allEmptyCellsHaveCandidates() const;
+
     /// Finds cells whose candidate set contains exactly one value.
     std::vector<CellUniqueCandidatePair> getCellsWithUniqueCandidate() const;
 

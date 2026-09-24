@@ -87,7 +87,7 @@ std::set<int> SudokuBoard::rowValues(const SudokuCell& cell) const {
     for (int col = 0; col < 9; ++col) {
         if (auto value = board[cell.row() * 9 + col])
         {
-            values.insert(board[value]);
+            values.insert(value);
         }
     }
 
@@ -100,7 +100,7 @@ std::set<int> SudokuBoard::columnValues(const SudokuCell& cell) const {
     for (int row = 0; row < 9; ++row) {
         if (auto value = board[row * 9 + cell.column()])
         {
-            values.insert(board[value]);
+            values.insert(value);
         }
     }
     return values;
@@ -116,7 +116,7 @@ std::set<int> SudokuBoard::blockValues(const SudokuCell& cell) const {
         {
             if (auto value = board[row * 9 + col])
             {
-                values.insert(board[value]);
+                values.insert(value);
             }
         }
     }
@@ -124,5 +124,9 @@ std::set<int> SudokuBoard::blockValues(const SudokuCell& cell) const {
 }
 
 void SudokuBoard::updateCell(const SudokuCell& cell, const int& value) {
+    std::cout << "Updating cell at row: " << cell.row() + 1 << ", column: " << cell.column() + 1 << " with value: " << value << std::endl;
     board[cell.arrayIndex] = value;
+    std::cout << std::endl;
+    std::cout << "Board after update:" << std::endl;
+    print();
 }

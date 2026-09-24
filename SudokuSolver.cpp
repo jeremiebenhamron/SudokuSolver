@@ -1,19 +1,26 @@
 #include <algorithm>
 #include <iterator>
+#include <set>
 
 #include "SudokuSolver.hpp"
 
 std::optional<SudokuBoard> SudokuSolver::solve() {
     populateCandidates();
-    while (board.hasEmptyCells())
+    populateCellByCandidateMatrices();
+    while (board.hasEmptyCells() && allEmptyCellsHaveCandidates())
     {
         for (const auto& [index, value]: getCellsWithUniqueCandidate()) {
             board.updateCell(index, value);
             updateCandidatesAfterChangeAt(index, value);
         }
     }
+
+    if (board.hasEmptyCells())
+    {
+        return std::nullopt;
+    }
     
-    return std::nullopt; // Placeholder return value
+    return board;
 }
 
 
@@ -31,11 +38,17 @@ std::optional<SudokuBoard> SudokuSolver::solve() {
     auto blockValues = board.blockValues(cell);
     std::set<int> nonCandidates;
     
-    for (const auto& values: {rowValues, columnValues, blockValues})
-    {
-        nonCandidates.insert(values.cbegin(), values.cend());
+    for (const auto& values : rowValues) {
+        nonCandidates.insert(rowValues.cbegin(), rowValues.cend());
     }
-    
+
+    for (const auto& values : columnValues) {
+        nonCandidates.insert(columnValues.cbegin(), columnValues.cend());
+    }
+
+    for (const auto& values : blockValues) {
+        nonCandidates.insert(blockValues.cbegin(), blockValues.cend());
+    }
     
     std::set<int> candidates;
     std::set_difference(allValues.begin(), allValues.end(),
@@ -97,6 +110,11 @@ SudokuSolver::getCellsWithUniqueCandidate(
     return cellsWithUniqueCandidates;
 }
 
+bool SudokuSolver::allEmptyCellsHaveCandidates() const {
+    const auto& emptyCells = board.emptyCells();
+    return std::all_of(emptyCells.cbegin(), emptyCells.cend(),
+        [this](const SudokuCell& cell) { return !candidates[cell.arrayIndex].empty(); });
+}
 
 std::set<SudokuCell> SudokuSolver::getCellsAffectedByChangeAt(const SudokuCell& cellChanged) const
 {
