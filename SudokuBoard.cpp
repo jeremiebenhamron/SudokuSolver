@@ -127,6 +127,6 @@ void SudokuBoard::updateCell(const SudokuCell& cell, const int& value) {
     std::cout << "Updating cell at row: " << cell.row() + 1 << ", column: " << cell.column() + 1 << " with value: " << value << std::endl;
     board[cell.arrayIndex] = value;
     std::cout << std::endl;
-    std::cout << "Board after update:" << std::endl;
-    print();
+    // std::cout << "Board after update:" << std::endl;
+    // print();
 }

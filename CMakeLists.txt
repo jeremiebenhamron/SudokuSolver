@@ -5,7 +5,7 @@ project(SudokuSolver LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_executable(SudokuSolver 
-    main.cpp 
+    main.cpp
     SudokuBoard.cpp
     SudokuBoard.hpp 
     SudokuSolver.cpp

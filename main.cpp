@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <array>
+#include <chrono>
 #include <optional>
 #include <string>
 #include <unordered_set>
@@ -59,9 +60,14 @@ int main(int argc, char* argv[]) {
         if (auto sudokuBoard = validSudoku(sudokuString)) {
             std::cout << "Valid Sudoku puzzle." << std::endl;
             sudokuBoard->print();
-            SudokuSolver solver(std::move(*sudokuBoard));
             
-            if (auto solution = solver.solve())
+            SudokuSolver solver(std::move(*sudokuBoard));
+            const auto start = std::chrono::steady_clock::now();
+            const auto solution = solver.solve();
+            const auto end = std::chrono::steady_clock::now();
+            const auto elapsed = end - start;
+
+            if (solution)
             {   
                 std::cout << std::endl;
                 std::cout << "Solved Sudoku puzzle. Solution:" << std::endl;
@@ -70,6 +76,7 @@ int main(int argc, char* argv[]) {
                 std::cout << std::endl;
                 std::cout << "Sudoku has no unique solution." << std::endl;
             }
+            std::cout << "Time taken to solve: " << std::chrono::duration<double, std::milli>(elapsed).count() << " ms" << std::endl;
         } else {
             std::cerr << "Invalid Sudoku puzzle." << std::endl;
             return 1;
