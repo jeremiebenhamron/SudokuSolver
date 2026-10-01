@@ -6,6 +6,7 @@
 
 #include "SudokuBoard.hpp"
 
+using Solution = std::optional<SudokuBoard>;
 using CellUniqueCandidatePair = std::pair<SudokuCell, int>;
 
 using CandidatesByCell = std::array<std::set<int>, SUDOKU_CELL_COUNT>;
@@ -46,7 +47,7 @@ public:
      * @return The solved board when a solution is found, or std::nullopt when
      *         the puzzle cannot be solved.
      */
-    std::optional<SudokuBoard> solve();
+    Solution solve();
 
 private:
     /// Board currently being solved.
@@ -74,6 +75,17 @@ private:
     CellsByCandidateMatrix candidateCellsByBlock;
 
     bool allEmptyCellsHaveCandidates() const;
+
+    /**
+     * Attempts to solve the board by guessing a value for the specified cell.
+     * 
+     * @param cell The cell to guess a value for.
+     * @param value The value to guess for the cell.
+     * @return std::optional<SudokuBoard> The solved board when a solution is found, or std::nullopt when
+     *         the puzzle cannot be solved with the guessed value.
+     */
+    Solution guessValue(const SudokuCell& cell, const int& value);
+
 
     /// Finds cells whose candidate set contains exactly one value.
     std::vector<CellUniqueCandidatePair> getCellsWithUniqueCandidate() const;

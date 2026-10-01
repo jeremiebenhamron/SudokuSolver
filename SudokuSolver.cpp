@@ -2,10 +2,12 @@
 #include <iostream>
 #include <iterator>
 #include <set>
+#include <thread>
+#include <mutex>
 
 #include "SudokuSolver.hpp"
 
-std::optional<SudokuBoard> SudokuSolver::solve() {
+Solution SudokuSolver::solve() {
     populateCandidates();
     populateCellByCandidateMatrices();
     while (board.hasEmptyCells() && allEmptyCellsHaveCandidates())
@@ -15,24 +17,34 @@ std::optional<SudokuBoard> SudokuSolver::solve() {
         {
             // There are no cells with unique candidates, so we cannot make any further progress
             // without making a guess.
+            std::vector<std::thread> threads;
+            std::vector<Solution> solutions;
+            std::mutex solutionsMutex;
             const auto firstEmptyCell = board.emptyCells().front();
-            const int guessedValue = *candidates[firstEmptyCell.arrayIndex].begin();
-
-            std::cout << "Guessing value " << guessedValue << " for cell at row: " << firstEmptyCell.row() + 1 << ", column: " << firstEmptyCell.column() + 1 << std::endl;
-
-            // Create a copy of the solver to try and solve the puzzle with the guessed value
-            SudokuSolver solver = *this;
-            solver.board.updateCell(firstEmptyCell, guessedValue);
-            if (const auto solution = solver.solve())
+            for (const auto& candidate : candidates[firstEmptyCell.arrayIndex])
             {
-                // the guess led to a valid solution
-                return solution;
-            } else {
-                // the guess is invalid, so update candidates accordingly
-                invalidateGuess(firstEmptyCell, guessedValue);
-                std::cout << "Invalidating guess: " << guessedValue << " for cell at row: " << firstEmptyCell.row() + 1 << ", column: " << firstEmptyCell.column() + 1 << std::endl;
+                threads.emplace_back([&]() {
+                    const auto solution = guessValue(firstEmptyCell, candidate);
+                    std::lock_guard<std::mutex> lock(solutionsMutex);
+                    solutions.emplace_back(solution);
+                });
+            }
+            
+            for (auto& thread : threads)
+            {
+                thread.join();
             }
 
+            for (const auto& solution : solutions)
+            {
+                if (solution)
+                {
+                    // return the first valid solution found
+                    return solution;
+                }
+            }
+            // No valid solution was found with any of the guesses
+            return std::nullopt;
         } else {
             for (const auto& [index, value]: cellsWithUniqueCandidates) {
                 board.updateCell(index, value);
@@ -47,6 +59,14 @@ std::optional<SudokuBoard> SudokuSolver::solve() {
     }
     
     return board;
+}
+
+Solution SudokuSolver::guessValue(const SudokuCell& cell, const int& value) {
+    std::cout << "Guessing value " << value << " for cell at row: " << cell.row() + 1 << ", column: " << cell.column() + 1 << std::endl;
+    // Create a copy of the solver to try and solve the puzzle with the guessed value
+    SudokuSolver solver = *this;
+    solver.board.updateCell(cell, value);
+    return solver.solve();
 }
 
 
