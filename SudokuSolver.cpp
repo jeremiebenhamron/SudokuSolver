@@ -24,9 +24,15 @@ Solution SudokuSolver::solve() {
             
             // Guess the value of a cell with the least number of candidates
             // to minimize the amount of threads spawned
-            const SudokuCell& emptyCellToGuess = *std::min_element(emptyCells.cbegin(), emptyCells.cend(), [this](const SudokuCell& a, const SudokuCell& b) {
-                return candidates[a.arrayIndex].size() < candidates[b.arrayIndex].size();
-            });
+            const auto emptyCellEntry = std::min_element(
+                emptyCells.cbegin(),
+                emptyCells.cend(),
+                [this](const auto& a, const auto& b) {
+                    return candidates[a.second.arrayIndex].size() <
+                           candidates[b.second.arrayIndex].size();
+                }
+            );
+            const SudokuCell& emptyCellToGuess = emptyCellEntry->second;
             for (const auto& candidate : candidates[emptyCellToGuess.arrayIndex])
             {
                 threads.emplace_back([&]() {
@@ -77,9 +83,9 @@ Solution SudokuSolver::guessValue(const SudokuCell& cell, const int& value) {
 
 
  void SudokuSolver::populateCandidates() {
-    for (const auto& index: board.emptyCells())
+    for (const auto& [_, cell]: board.emptyCells())
     {
-        populateCandidates(index);
+        populateCandidates(cell);
     }
  }
 
@@ -134,7 +140,7 @@ void SudokuSolver::invalidateGuess(const SudokuCell& cell, const int value) {
  }
 
  void SudokuSolver::populateCellByCandidateMatrices() {
-    for (const auto& emptyCell: board.emptyCells()) {
+    for (const auto& [_, emptyCell]: board.emptyCells()) {
         const auto& cellCandidates = candidates[emptyCell.arrayIndex];
         for (const auto& value: cellCandidates) {
             candidateCellsByRow[emptyCell.row()][value - 1].push_back(emptyCell);
@@ -146,7 +152,7 @@ void SudokuSolver::invalidateGuess(const SudokuCell& cell, const int value) {
 
 std::vector<CellUniqueCandidatePair> SudokuSolver::getCellsWithUniqueCandidate() const {
     std::vector<CellUniqueCandidatePair> cellsWithUniqueCandidates{};
-    for (const auto& emptyCell: board.emptyCells())
+    for (const auto& [_, emptyCell]: board.emptyCells())
     {
         const auto& cellCandidates = candidates[emptyCell.arrayIndex];
         if (cellCandidates.size() == 1)
@@ -187,7 +193,9 @@ SudokuSolver::getCellsWithUniqueCandidate(
 bool SudokuSolver::allEmptyCellsHaveCandidates() const {
     const auto& emptyCells = board.emptyCells();
     return std::all_of(emptyCells.cbegin(), emptyCells.cend(),
-        [this](const SudokuCell& cell) { return !candidates[cell.arrayIndex].empty(); });
+        [this](const auto& entry) {
+            return !candidates[entry.second.arrayIndex].empty();
+        });
 }
 
 std::set<SudokuCell> SudokuSolver::getCellsAffectedByChangeAt(const SudokuCell& cellChanged) const

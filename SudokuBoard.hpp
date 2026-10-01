@@ -4,6 +4,7 @@
 #include <compare>
 #include <span>
 #include <set>
+#include <unordered_map>
 
 
 constexpr int SUDOKU_CELL_COUNT = 81;
@@ -57,9 +58,7 @@ struct SudokuCell {
 class SudokuBoard {
 public:
     /// Creates a board from an 81-cell puzzle.
-    SudokuBoard(SudokuPuzzle&& puzzle)
-    : board(puzzle)
-    {}
+    SudokuBoard(SudokuPuzzle&& puzzle);
 
     bool verify() const noexcept;
 
@@ -79,7 +78,7 @@ public:
     bool hasEmptyCells() const;
 
     /// Returns all empty cells on the board.
-    std::vector<SudokuCell> emptyCells() const;
+    std::unordered_map<int, SudokuCell> emptyCells() const;
 
     /// Returns empty cells in the specified row.
     std::vector<SudokuCell> emptyCellsInRow(const int& row) const;
@@ -101,6 +100,8 @@ public:
 
     
 private:
+    std::unordered_map<int, SudokuCell> m_emptyCells;
+
     /// Returns the sum of the values of cells in a row containing the given cell. 
     int sumInRow(const SudokuCell& cell) const;
 

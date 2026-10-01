@@ -4,6 +4,16 @@
 
 #include "SudokuBoard.hpp"
 
+SudokuBoard::SudokuBoard(SudokuPuzzle&& puzzle)
+: board(puzzle)
+{
+    for (int i = 0; i < static_cast<int>(board.size()); i++)
+    {
+        if (0 == board[i]) {
+            m_emptyCells.emplace(i, SudokuCell(i));
+        }
+    }
+}
 
 int SudokuBoard::sumInRow(const SudokuCell& cell) const {
     const auto valuesInRow = rowValues(cell);
@@ -133,16 +143,8 @@ std::vector<SudokuCell> SudokuBoard::emptyCellsInBlock(const int& block) const {
     return cells;
 }
 
-std::vector<SudokuCell> SudokuBoard::emptyCells() const {
-    std::vector<SudokuCell> emptyCells{};
-    for (int i = 0; i < static_cast<int>(board.size()); i++)
-    {
-        if (0 == board[i]) {
-            emptyCells.push_back(SudokuCell(i));
-        }
-    }
-
-    return emptyCells;
+std::unordered_map<int, SudokuCell> SudokuBoard::emptyCells() const {
+    return m_emptyCells;
 }
 
 std::set<int> SudokuBoard::rowValues(const SudokuCell& cell) const {
@@ -191,6 +193,12 @@ void SudokuBoard::updateCell(const SudokuCell& cell, const int& value) {
     std::cout << "Updating cell at row: " << cell.row() + 1 << ", column: " << cell.column() + 1 << " with value: " << value << std::endl;
     board[cell.arrayIndex] = value;
     std::cout << std::endl;
+
+    if (value == 0) {
+        m_emptyCells.emplace(cell.arrayIndex, cell);
+    } else {
+        m_emptyCells.erase(cell.arrayIndex);
+    }
     // std::cout << "Board after update:" << std::endl;
     // print();
 }
