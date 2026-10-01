@@ -1,6 +1,70 @@
 #include <iostream>
+#include <numeric>
+#include <thread>
 
 #include "SudokuBoard.hpp"
+
+
+int SudokuBoard::sumInRow(const SudokuCell& cell) const {
+    const auto valuesInRow = rowValues(cell);
+    return std::accumulate(valuesInRow.begin(), valuesInRow.end(), 0);
+}
+
+int SudokuBoard::sumInColumn(const SudokuCell& cell) const {
+    const auto valuesInColumn = columnValues(cell);
+    return std::accumulate(valuesInColumn.begin(), valuesInColumn.end(), 0);
+}
+
+int SudokuBoard::sumInBlock(const SudokuCell& cell) const {
+    const auto valuesInBlock = blockValues(cell);
+    return std::accumulate(valuesInBlock.begin(), valuesInBlock.end(), 0);
+}
+
+bool SudokuBoard::verify() const noexcept {
+    // Implementation for verifying the Sudoku board
+    if (hasEmptyCells()) {
+        return false; // Board is not complete
+    }
+
+    bool rowsValid = true;
+    std::thread rowThread([this, &rowsValid]() {
+        for (int row = 0; row < 9; ++row) {
+            SudokuCell cell(row, 0); // Get the first cell in the row
+            if (sumInRow(cell) != 45) { // Sum of numbers 1-9 is 45
+                rowsValid = false;
+                break; // No need to check further rows if one is invalid
+            }
+        }
+    });
+
+    bool colsValid = true;
+    std::thread colThread([this, &colsValid]() {
+        for (int col = 0; col < 9; ++col) {
+            SudokuCell cell(0, col); // Get the first cell in the column
+            if (sumInColumn(cell) != 45) { // Sum of numbers 1-9 is 45
+                colsValid = false;
+                break; // No need to check further columns if one is invalid
+            }
+        }
+    });
+
+    bool blocksValid = true;
+    std::thread blockThread([this, &blocksValid]() {
+        for (int block = 0; block < 9; ++block) {
+            SudokuCell firstCellInBlock((block / 3) * 3, (block % 3) * 3); // Get the first cell in the block
+            if (sumInBlock(firstCellInBlock) != 45) { // Sum of numbers 1-9 is 45
+                blocksValid = false;
+                break; // No need to check further blocks if one is invalid
+            }
+        }    
+    });
+
+    rowThread.join();
+    colThread.join();
+    blockThread.join();
+    
+    return rowsValid && colsValid && blocksValid;
+}
 
 void SudokuBoard::print() const {
     for (int i = 0; i < SUDOKU_CELL_COUNT; ++i) {

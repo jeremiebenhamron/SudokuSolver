@@ -61,6 +61,8 @@ public:
     : board(puzzle)
     {}
 
+    bool verify() const noexcept;
+
     /// A board must be constructed from puzzle data.
     SudokuBoard() = delete;
 
@@ -97,8 +99,17 @@ public:
     /// Returns the values in the specified 3x3 block.
     std::set<int> blockValues(const SudokuCell& cell) const;
 
-
+    
 private:
+    /// Returns the sum of the values of cells in a row containing the given cell. 
+    int sumInRow(const SudokuCell& cell) const;
+
+    /// Returns the sum of the values of cells in a column containing the given cell.
+    int sumInColumn(const SudokuCell& cell) const;
+
+    /// Returns the sum of the values of cells in a 3x3 block containing the given cell.
+    int sumInBlock(const SudokuCell& cell) const;
+
     /// Underlying row-major board storage.
     SudokuPuzzle board;
 };

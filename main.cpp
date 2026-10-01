@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
             const auto end = std::chrono::steady_clock::now();
             const auto elapsed = end - start;
 
-            if (solution)
+            if (solution && solution->verify())
             {   
                 std::cout << std::endl;
                 std::cout << "Solved Sudoku puzzle. Solution:" << std::endl;
