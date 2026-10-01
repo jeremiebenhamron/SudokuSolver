@@ -20,11 +20,17 @@ Solution SudokuSolver::solve() {
             std::vector<std::thread> threads;
             std::vector<Solution> solutions;
             std::mutex solutionsMutex;
-            const auto firstEmptyCell = board.emptyCells().front();
-            for (const auto& candidate : candidates[firstEmptyCell.arrayIndex])
+            const auto& emptyCells = board.emptyCells();
+            
+            // Guess the value of a cell with the least number of candidates
+            // to minimize the amount of threads spawned
+            const SudokuCell& emptyCellToGuess = *std::min_element(emptyCells.cbegin(), emptyCells.cend(), [this](const SudokuCell& a, const SudokuCell& b) {
+                return candidates[a.arrayIndex].size() < candidates[b.arrayIndex].size();
+            });
+            for (const auto& candidate : candidates[emptyCellToGuess.arrayIndex])
             {
                 threads.emplace_back([&]() {
-                    const auto solution = guessValue(firstEmptyCell, candidate);
+                    const auto solution = guessValue(emptyCellToGuess, candidate);
                     std::lock_guard<std::mutex> lock(solutionsMutex);
                     solutions.emplace_back(solution);
                 });
